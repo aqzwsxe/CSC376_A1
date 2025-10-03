@@ -11,9 +11,9 @@ if __name__ == '__main__':
 
     # matplotlib widget
 
-    L = [rtb.PrismaticMDH(alpha=0, a=0, offset=2, theta=0, qlim=[0, 0.5]),
-            rtb.RevoluteMDH(alpha=pi/2, a=0, d=0, qlim=[-pi/2, pi/2]),
-            rtb.PrismaticMDH(alpha=-pi/2, a=0.0, offset=1, theta=0, qlim=[0, 0.5])]
+    # L = [rtb.PrismaticMDH(alpha=0, a=0, offset=2, theta=0, qlim=[0, 0.5]),
+    #         rtb.RevoluteMDH(alpha=pi/2, a=0, d=0, qlim=[-pi/2, pi/2]),
+    #         rtb.PrismaticMDH(alpha=-pi/2, a=0.0, offset=1, theta=0, qlim=[0, 0.5])]
     L = [rtb.PrismaticMDH(a=0.0, alpha=0.0, qlim=[2, 2.5]),
             rtb.RevoluteMDH(alpha=pi/2,a=0, d=0,  qlim=[-pi/2, pi/2]),
             rtb.PrismaticMDH(a=0.0,  alpha=-pi/2,  qlim=[1, 1.5])]
