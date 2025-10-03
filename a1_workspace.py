@@ -8,6 +8,53 @@ from matplotlib import cm
 
 np.set_printoptions(linewidth=100, formatter={'float': lambda x: f"{x:8.4g}" if abs(x) > 1e-10 else f"{0:8.4g}"})
 
+
+def plot_bounding_box(ax, total_points):
+    if len(total_points) == 0:
+        print("There's no points in the total_points")
+        return
+    # Convert each [x,y,z] to a numpy array
+    points_array = np.array(total_points)
+    min_coords = points_array.min(axis=0)
+    max_coords = points_array.max(axis=0)
+
+    xmin,ymin,zmin = min_coords
+    xmax,ymax,zmax = max_coords
+
+    # Print bounds for information
+    print("\n--- Bounding Box Extents ---")
+    print(f"X range: [{xmin:8.4g}, {xmax:8.4g}]")
+    print(f"Y range: [{ymin:8.4g}, {ymax:8.4g}]")
+    print(f"Z range: [{zmin:8.4g}, {zmax:8.4g}]")
+    print(f"Volume: {(xmax - xmin) * (ymax - ymin) * (zmax - zmin):8.4g}")
+
+    # Define the 8 vertices (corners) of the box
+    corners = np.array([
+        [xmin, ymin, zmin],  # 0
+        [xmax, ymin, zmin],  # 1
+        [xmax, ymax, zmin],  # 2
+        [xmin, ymax, zmin],  # 3
+        [xmin, ymin, zmax],  # 4
+        [xmax, ymin, zmax],  # 5
+        [xmax, ymax, zmax],  # 6
+        [xmin, ymax, zmax]  # 7
+    ])
+
+    edges = [
+        # Bottom plane
+        (0, 1), (1, 2), (2, 3), (3, 0),
+        # Top plane
+        (4, 5), (5, 6), (6, 7), (7, 4),
+        # Vertical edges
+        (0, 4), (1, 5), (2, 6), (3, 7)
+    ]
+
+    for (i, j) in edges:
+        xs = [corners[i, 0], corners[j, 0]]
+        ys = [corners[i, 1], corners[j, 1]]
+        zs = [corners[i, 2], corners[j, 2]]
+        ax.plot(xs, ys, zs, color='r', linestyle='--', linewidth=1.5, alpha=0.8, label='Bounding Box' if i == 0 else "")
+
 if __name__ == '__main__':
 
     # matplotlib widget
@@ -28,7 +75,8 @@ if __name__ == '__main__':
     # for joint2, qlim is range about theta2
     # for joint3, qlim is range about d3
     # therefore, we sample random points for the end-effector positions (where the points are at)
-    size = 50
+    size = 2000
+    np.random.seed(42)
 
     # initialize random points using joint limits
     d1 = np.random.uniform(0, 0.5, size)
@@ -55,6 +103,32 @@ if __name__ == '__main__':
         z.append(points[i][2])  # get all z values
 
     plt.plot(x, y, z, 'o')  # plots points as circles
+    plt.show()
+
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection='3d')
+
+    ax.scatter(x, y, z, c=z, cmap='viridis', marker='o', s=1, alpha=0.3, label="The Workspace")
+
+    all_coords = np.concatenate([np.array(points), [[0, 0, 0]]])
+    max_range = np.array([all_coords[:, 0].max() - all_coords[:, 0].min(),
+                          all_coords[:, 1].max() - all_coords[:, 1].min(),
+                          all_coords[:, 2].max() - all_coords[:, 2].min()]).max() / 2.0
+
+    mid_x = (all_coords[:, 0].max() + all_coords[:, 0].min()) * 0.5
+    mid_y = (all_coords[:, 1].max() + all_coords[:, 1].min()) * 0.5
+    mid_z = (all_coords[:, 2].max() + all_coords[:, 2].min()) * 0.5
+
+    # Set equal aspect ratio
+    ax.set_xlim(mid_x - max_range, mid_x + max_range)
+    ax.set_ylim(mid_y - max_range, mid_y + max_range)
+    ax.set_zlim(mid_z - max_range, mid_z + max_range)
+
+    # Add a legend for clarity (handle duplicate label for bounding box)
+    handles, labels = ax.get_legend_handles_labels()
+    unique_labels = dict(zip(labels, handles))
+    ax.legend(unique_labels.values(), unique_labels.keys())
+
     plt.show()
 
     # the points plotted shows the possible movements this robot can make
