@@ -57,8 +57,7 @@ def plot_bounding_box(ax, total_points):
 
 # if __name__ == '__main__':
 
-# matplotlib widget
-
+# input values from DH table to initialize the joints
 L = [rtb.PrismaticMDH(alpha=0, a=0, offset=2, theta=0, qlim=[0, 0.5]),
      rtb.RevoluteMDH(alpha=pi / 2, a=0, d=0, qlim=[-pi / 2, pi / 2]),
      rtb.PrismaticMDH(alpha=-pi / 2, a=0.0, offset=1, theta=0, qlim=[0, 0.5])]
@@ -105,16 +104,21 @@ for i in range(size):
 plt.plot(x, y, z, 'o')  # plots points as circles
 plt.show()
 
+# initialize a 10 x 8 3D figure
 fig = plt.figure(figsize=(10, 8))
 ax = fig.add_subplot(111, projection='3d')
 
+# plot a point cloud using viridis colourmap and small circular dots
 ax.scatter(x, y, z, c=z, cmap='viridis', marker='o', s=1, alpha=0.3, label="The Workspace")
 
+# concatenate the point cloud with the zero config [0,0,0]
+# calculate the max range along each axis to create a bounding box
 all_coords = np.concatenate([np.array(points), [[0, 0, 0]]])
 max_range = np.array([all_coords[:, 0].max() - all_coords[:, 0].min(),
                       all_coords[:, 1].max() - all_coords[:, 1].min(),
                       all_coords[:, 2].max() - all_coords[:, 2].min()]).max() / 2.0
 
+# calculate the midpoint of each axis
 mid_x = (all_coords[:, 0].max() + all_coords[:, 0].min()) * 0.5
 mid_y = (all_coords[:, 1].max() + all_coords[:, 1].min()) * 0.5
 mid_z = (all_coords[:, 2].max() + all_coords[:, 2].min()) * 0.5
@@ -132,17 +136,4 @@ ax.legend(unique_labels.values(), unique_labels.keys())
 plt.show()
 
 # the points plotted shows the possible movements this robot can make
-
-# Which visualization do you think will work better? the above one outputs one figure with three joints
-# and the one below outputs 3 different figures for each joint
-# i'll leave them both here for reference
-
-# for i in L:
-# print()
-# robot = rtb.DHRobot(
-# [
-# i
-# ], name="myRobot")
-# robot.teach(robot.q)
-
-# Open a PyPlot with the teach panel
+# the point cloud figures and bounding box will show up after closing the robot teach window.
