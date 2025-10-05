@@ -9,6 +9,10 @@ from matplotlib import cm
 np.set_printoptions(linewidth=100, formatter={'float': lambda x: f"{x:8.4g}" if abs(x) > 1e-10 else f"{0:8.4g}"})
 
 # By: Katherine Qin, Zehao Fan, Oct 2025
+# References: Lecture slides, code from practical, 
+# https://matplotlib.org/stable/tutorials/pyplot.html
+# https://matplotlib.org/stable/api/pyplot_summary.html
+# https://matplotlib.org/stable/api/figure_api.html
 
 def plot_bounding_box(ax, total_points):
     if len(total_points) == 0:
