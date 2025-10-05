@@ -55,94 +55,94 @@ def plot_bounding_box(ax, total_points):
         zs = [corners[i, 2], corners[j, 2]]
         ax.plot(xs, ys, zs, color='r', linestyle='--', linewidth=1.5, alpha=0.8, label='Bounding Box' if i == 0 else "")
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    # matplotlib widget
+# matplotlib widget
 
-    L = [rtb.PrismaticMDH(alpha=0, a=0, offset=2, theta=0, qlim=[0, 0.5]),
-         rtb.RevoluteMDH(alpha=pi / 2, a=0, d=0, qlim=[-pi / 2, pi / 2]),
-         rtb.PrismaticMDH(alpha=-pi / 2, a=0.0, offset=1, theta=0, qlim=[0, 0.5])]
-    counter = 0
+L = [rtb.PrismaticMDH(alpha=0, a=0, offset=2, theta=0, qlim=[0, 0.5]),
+     rtb.RevoluteMDH(alpha=pi / 2, a=0, d=0, qlim=[-pi / 2, pi / 2]),
+     rtb.PrismaticMDH(alpha=-pi / 2, a=0.0, offset=1, theta=0, qlim=[0, 0.5])]
+counter = 0
 
-    # outputs the robot figure in robotics toolbox
-    robot = rtb.DHRobot(L, name="myRobot")
-    robot.plot([0, 0, 0])  # zero config at theta = [0,0,0]
+# outputs the robot figure in robotics toolbox
+robot = rtb.DHRobot(L, name="myRobot")
 
-    robot.teach(robot.q)
 
-    # Sample the robot’s workspace using the joint limits and the forward kinematics.
-    # We know that for joint1, qlim is range along d1.
-    # for joint2, qlim is range about theta2
-    # for joint3, qlim is range about d3
-    # therefore, we sample random points for the end-effector positions (where the points are at)
-    size = 2000
-    np.random.seed(42)
+robot.teach(robot.q)
 
-    # initialize random points using joint limits
-    d1 = np.random.uniform(0, 0.5, size)
-    theta2 = np.random.uniform(-pi / 2, pi / 2, size)
-    d3 = np.random.uniform(0, 0.5, size)
+# Sample the robot’s workspace using the joint limits and the forward kinematics.
+# We know that for joint1, qlim is range along d1.
+# for joint2, qlim is range about theta2
+# for joint3, qlim is range about d3
+# therefore, we sample random points for the end-effector positions (where the points are at)
+size = 2000
+np.random.seed(42)
 
-    # q = [d1, theta2, d3]
-    # using np.column_stack to create a size x 3 array with col0 = d1, col1 = theta2, col2 = d3
-    samples = np.column_stack((d1, theta2, d3))
-    points = []
+# initialize random points using joint limits
+d1 = np.random.uniform(0, 0.5, size)
+theta2 = np.random.uniform(-pi / 2, pi / 2, size)
+d3 = np.random.uniform(0, 0.5, size)
 
-    for q in samples:
-        T = robot.fkine(q)  # calculate the SE3 matrix
-        points.append(T.t)  # get the [x,y,z] points
+# q = [d1, theta2, d3]
+# using np.column_stack to create a size x 3 array with col0 = d1, col1 = theta2, col2 = d3
+samples = np.column_stack((d1, theta2, d3))
+points = []
 
-    x = []
-    y = []
-    z = []
+for q in samples:
+    T = robot.fkine(q)  # calculate the SE3 matrix
+    points.append(T.t)  # get the [x,y,z] points
 
-    # get all x, y and z values to plot in 3D graph
-    for i in range(size):
-        x.append(points[i][0])  # get all x values
-        y.append(points[i][1])  # get all y values
-        z.append(points[i][2])  # get all z values
+x = []
+y = []
+z = []
 
-    plt.plot(x, y, z, 'o')  # plots points as circles
-    plt.show()
+# get all x, y and z values to plot in 3D graph
+for i in range(size):
+    x.append(points[i][0])  # get all x values
+    y.append(points[i][1])  # get all y values
+    z.append(points[i][2])  # get all z values
 
-    fig = plt.figure(figsize=(10, 8))
-    ax = fig.add_subplot(111, projection='3d')
+plt.plot(x, y, z, 'o')  # plots points as circles
+plt.show()
 
-    ax.scatter(x, y, z, c=z, cmap='viridis', marker='o', s=1, alpha=0.3, label="The Workspace")
+fig = plt.figure(figsize=(10, 8))
+ax = fig.add_subplot(111, projection='3d')
 
-    all_coords = np.concatenate([np.array(points), [[0, 0, 0]]])
-    max_range = np.array([all_coords[:, 0].max() - all_coords[:, 0].min(),
-                          all_coords[:, 1].max() - all_coords[:, 1].min(),
-                          all_coords[:, 2].max() - all_coords[:, 2].min()]).max() / 2.0
+ax.scatter(x, y, z, c=z, cmap='viridis', marker='o', s=1, alpha=0.3, label="The Workspace")
 
-    mid_x = (all_coords[:, 0].max() + all_coords[:, 0].min()) * 0.5
-    mid_y = (all_coords[:, 1].max() + all_coords[:, 1].min()) * 0.5
-    mid_z = (all_coords[:, 2].max() + all_coords[:, 2].min()) * 0.5
+all_coords = np.concatenate([np.array(points), [[0, 0, 0]]])
+max_range = np.array([all_coords[:, 0].max() - all_coords[:, 0].min(),
+                      all_coords[:, 1].max() - all_coords[:, 1].min(),
+                      all_coords[:, 2].max() - all_coords[:, 2].min()]).max() / 2.0
 
-    # Set equal aspect ratio
-    ax.set_xlim(mid_x - max_range, mid_x + max_range)
-    ax.set_ylim(mid_y - max_range, mid_y + max_range)
-    ax.set_zlim(mid_z - max_range, mid_z + max_range)
+mid_x = (all_coords[:, 0].max() + all_coords[:, 0].min()) * 0.5
+mid_y = (all_coords[:, 1].max() + all_coords[:, 1].min()) * 0.5
+mid_z = (all_coords[:, 2].max() + all_coords[:, 2].min()) * 0.5
 
-    # Add a legend for clarity (handle duplicate label for bounding box)
-    handles, labels = ax.get_legend_handles_labels()
-    unique_labels = dict(zip(labels, handles))
-    ax.legend(unique_labels.values(), unique_labels.keys())
+# Set equal aspect ratio
+ax.set_xlim(mid_x - max_range, mid_x + max_range)
+ax.set_ylim(mid_y - max_range, mid_y + max_range)
+ax.set_zlim(mid_z - max_range, mid_z + max_range)
 
-    plt.show()
+# Add a legend for clarity (handle duplicate label for bounding box)
+handles, labels = ax.get_legend_handles_labels()
+unique_labels = dict(zip(labels, handles))
+ax.legend(unique_labels.values(), unique_labels.keys())
 
-    # the points plotted shows the possible movements this robot can make
+plt.show()
 
-    # Which visualization do you think will work better? the above one outputs one figure with three joints
-    # and the one below outputs 3 different figures for each joint
-    # i'll leave them both here for reference
+# the points plotted shows the possible movements this robot can make
 
-    # for i in L:
-    # print()
-    # robot = rtb.DHRobot(
-    # [
-    # i
-    # ], name="myRobot")
-    # robot.teach(robot.q)
+# Which visualization do you think will work better? the above one outputs one figure with three joints
+# and the one below outputs 3 different figures for each joint
+# i'll leave them both here for reference
 
-    # Open a PyPlot with the teach panel
+# for i in L:
+# print()
+# robot = rtb.DHRobot(
+# [
+# i
+# ], name="myRobot")
+# robot.teach(robot.q)
+
+# Open a PyPlot with the teach panel
